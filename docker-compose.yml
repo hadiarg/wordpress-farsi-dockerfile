@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  wordpress_salt:
+    image: wordpress_farsi:1.0
+    restart: always
+    container_name: wordpress_salt
+    ports:
+      - "80"
+    environment:
+      WORDPRESS_DB_HOST: db_salt:3306
+      WORDPRESS_DB_USER: bluesalt
+      WORDPRESS_DB_PASSWORD: password
+      WORDPRESS_DB_NAME: salt
+    #volumes:
+    #  - ./salt/wordpress_data:/var/www/html
+    depends_on:
+      - db_salt
+    networks:
+      Production:
+        ipv4_address: 172.18.5.4
+  db_salt:
+    image: mysql:5.7
+    container_name: db_salt
+    volumes:
+      - ./salt/db_data:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: salt
+      MYSQL_USER: bluesalt
+      MYSQL_PASSWORD: password
+    networks:
+      Production:
+        ipv4_address: 172.18.5.5
+  phpmyadmin_salt:
+    depends_on:
+      - db_salt
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_salt
+    restart: always
+    environment:
+      PMA_HOST: db_salt
+      MYSQL_ROOT_PASSWORD: password
+    networks:
+      Production:
+        ipv4_address: 172.18.5.6
+
+networks:
+    Production:
+      external:
+        name: group
